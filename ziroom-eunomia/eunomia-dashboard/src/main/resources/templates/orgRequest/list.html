@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <base th:href="|${basePath}|">
+    <title>欧诺弥亚管理系统</title>
+    <meta name="keywords" content="欧诺弥亚管理系统">
+    <meta name="description" content="欧诺弥亚管理系统">
+    <link th:rel="|${staticResourceUrl}/shortcut icon|" href="favicon.ico">
+    <link th:href="|${staticResourceUrl}/css/bootstrap.min.css${application.VERSION}|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/font-awesome.css${application.VERSION}|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/plugins/bootstrap-table/bootstrap-table.min.css${application.VERSION}001|"
+          rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/animate.css${application.VERSION}001|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/style.css${application.VERSION}|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/star-rating.css${application.VERSION}001|" rel="stylesheet"
+          type="text/css"/>
+
+    <link th:href="|${staticResourceUrl}/css/custom-z.css${application.VERSION}|" rel="stylesheet">
+    <style type="text/css">
+        .left2 {
+            margin-top: 10px;
+        }
+
+        .row {
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row row-lg">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row m-b">
+
+                                <label class="col-sm-1 control-label mtop">筛选应用：</label>
+                                <div class="col-sm-2">
+                                    <select class="form-control" id="orgFid">
+                                        <option value="">请选择</option>
+                                        <option th:each="org : ${orgList}" th:value="${org.fid}" th:text="${org.orgName}"></option>
+                                    </select>
+                                </div>
+
+                                <label class="col-sm-1 control-label mtop">调用时间：</label>
+                                <div class="col-sm-2">
+                                    <input id="startDate" name="startDate" class="laydate-icon form-control layer-date">
+                                </div>
+                                <label class="col-sm-1 control-label mtop">到</label>
+                                <div class="col-sm-2">
+                                    <input id="endDate" name="endDate" class="laydate-icon form-control layer-date">
+                                </div>
+
+                            </div>
+
+                            <div class="row m-b">
+                                <button class="btn btn-primary" type="button" onclick="query()"><i
+                                        class="fa fa-search"></i>&nbsp;查询
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel Other -->
+    <div class="ibox float-e-margins">
+        <div class="ibox-content">
+            <div class="row row-lg">
+                <div class="col-sm-12">
+                    <div class="example-wrap">
+                        <div class="example">
+                            <table id="listTable" class="table table-bordered table-hover">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 全局js -->
+<script th:src="|${staticResourceUrl}/js/jquery.min.js${application.VERSION}|"></script>
+<script th:src="|${staticResourceUrl}/js/bootstrap.min.js${application.VERSION}|"></script>
+<!-- 自定义js -->
+<script th:src="|${staticResourceUrl}/js/content.js${application.VERSION}|"></script>
+<!-- Bootstrap table -->
+<script th:src="|${staticResourceUrl}/js/plugins/bootstrap-table/bootstrap-table.min.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/plugins/bootstrap-table/bootstrap-table-mobile.min.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js${application.VERSION}001|"></script>
+<!-- layer javascript -->
+<script th:src="|${staticResourceUrl}/js/plugins/layer/layer.min.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/plugins/layer/laydate/laydate.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/minsu/common/date.proto.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/minsu/common/commonUtils.js${application.VERSION}001|"
+        type="text/javascript"></script>
+
+
+<script type="text/javascript">
+
+    var strapTable = function (tableId, dataUrl, queryParam, columnsData) {
+        $('#' + tableId).bootstrapTable('destroy');
+        $('#' + tableId).bootstrapTable({
+            url: dataUrl,   //请求后台的URL（*）
+            contentType: "application/x-www-form-urlencoded",
+            method: 'post',      //请求方式（*）
+            cache: false,      //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            pagination: true,     //是否显示分页（*）
+            queryParams: queryParam,//传递参数（*）
+            sidePagination: "server",   //分页方式：client客户端分页，server服务端分页（*）
+            pageSize: 10,      //每页的记录行数（*）
+            pageList: [10, 20, 50],  //可供选择的每页的行数（*）
+            columns: columnsData,
+            toggle: 'table',
+            paginationFirstText: '首页',
+            paginationPreText: '上一页',
+            paginationNextText: '下一页',
+            paginationLastText: '末页',
+            singleSelect: true,
+            height: 520,
+            clickToSelect: true
+        });
+    }
+
+    $(function () {
+        laydate({
+            elem: '#startDate', //目标元素。由于laydate.js封装了一个轻量级的选择器引擎，因此elem还允许你传入class、tag但必须按照这种方式 '#id .class'
+            event: 'focus' //响应事件。如果没有传入event，则按照默认的click
+        });
+        laydate({
+            elem: '#endDate', //目标元素。由于laydate.js封装了一个轻量级的选择器引擎，因此elem还允许你传入class、tag但必须按照这种方式 '#id .class'
+            event: 'focus' //响应事件。如果没有传入event，则按照默认的click
+        });
+        strapTable('listTable', 'org/request/selectByPage', paginationParam, columnsData);
+    });
+
+    // 查询
+    function query() {
+        $('#listTable').bootstrapTable('selectPage', 1);
+    }
+
+    function paginationParam(params) {
+        return {
+            limit: params.limit,
+            page: $('#listTable').bootstrapTable('getOptions').pageNumber,
+            orgFid: $('#orgFid').val(),
+            startDate: $('#startDate').val(),
+            endDate: $('#endDate').val()
+        };
+    }
+
+    //初始化列表列
+    var columnsData = [
+        {
+            field: 'orgName',
+            title: '名称',
+            align: 'center'
+        }, {
+            field: 'orgDomain',
+            title: '域名',
+            align: 'center'
+        }, {
+            field: 'content',
+            title: '校验文本',
+            align: 'center',
+            formatter: 'formatContent'
+        }, {
+            field: 'createDate',
+            title: '校验时间',
+            align: 'center',
+            formatter: 'CommonUtils.formateTimeStr'
+        }];
+
+    function formatContent(value, row, index) {
+        if(value.length > 40){
+            value = value.substring(0, 40) + "...";
+        }
+        return value;
+    }
+
+</script>
+
+</body>
+
+</html>

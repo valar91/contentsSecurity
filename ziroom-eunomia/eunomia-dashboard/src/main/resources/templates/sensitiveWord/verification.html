@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" />
+
+<head>
+
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="renderer" content="webkit">
+
+    <title>敏感词在线校验</title>
+
+    <link th:href="|${staticResourceUrl}/css/bootstrap.min.css${application.VERSION}|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/font-awesome.css${application.VERSION}|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/animate.css${application.VERSION}|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/style.css${application.VERSION}|" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="wrapper wrapper-content  animated fadeInRight">
+    <div class="row">
+        <div class="col-lg-6">
+            <div class="ibox ">
+                <div class="ibox-title">
+                    <h5>敏感词校验</h5>
+                </div>
+                <div class="ibox-content">
+                    <form role="form" id="form">
+                        <div>
+                            <button class="btn btn-sm btn-primary m-t-n-xs btn-check" type="button"><strong>提交</strong></button>
+                        </div>
+                        <div class="form-group">
+                            <label></label>
+                            <textarea type="text" rows="25" placeholder="请输入待校验文本" class="form-control textarea-check" required name="min"></textarea>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="ibox modal-words">
+                <div class="ibox-title">
+                    <h5>敏感词</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="m-b-md div-sensitiv-message">
+                        <!--<i class="fa fa-bell fa-4x"></i>-->
+                        <h1 class="m-ms" style="display: inline;">0</h1><span>个</span>
+                        <h3 class="font-bold no-margins">
+
+                        </h3>
+                        <small>我们检测到可能有需要改动词，请参考。</small>
+                    </div>
+                    <p>
+                        <!--<code>西安</code>
+                        <code>河北</code>
+                        <code>上海</code>-->
+                    </p>
+                </div>
+            </div>
+            <div class="ibox modal-content">
+                <div class="ibox-title">
+                    <h5>核对文本</h5>
+
+                </div>
+                <div class="ibox-content">
+                    <p>
+                        <code>台独分子</code>作为<code>台独</code>文化的始作俑者，终将自食其果，我国外交部再次申明，台湾是中国的固有领土，不排除动用一切武力维护领土主权！
+                    </p>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- Mainly scripts -->
+    <script th:src="|${staticResourceUrl}/js/jquery.min.js?${application.VERSION}|"></script>
+    <script th:src="|${staticResourceUrl}/js/bootstrap.min.js?${application.VERSION}|"></script>
+    <script th:src="|${staticResourceUrl}/js/plugins/metisMenu/jquery.metisMenu.js?${application.VERSION}|"></script>
+    <script th:src="|${staticResourceUrl}/js/plugins/slimscroll/jquery.slimscroll.min.js?${application.VERSION}|"></script>
+
+    <!-- Custom and plugin javascript -->
+    <script th:src="|${staticResourceUrl}/js/hplus.js?${application.VERSION}|"></script>
+    <script th:src="|${staticResourceUrl}/js/plugins/pace/pace.min.js?${application.VERSION}|"></script>
+
+    <!-- Jquery Validate -->
+    <script th:src="|${staticResourceUrl}/js/plugins/validate/jquery.validate.min.js?${application.VERSION}|"></script>
+    <script th:src="|${staticResourceUrl}/js/plugins/validate/messages_zh.min.js?${application.VERSION}|"></script>
+
+    <!--<script th:src="|${staticResourceUrl}/js/verification.js?${application.VERSION}|"></script>-->
+    <script src="/js/sensitive-word/verification.js"></script>
+
+    <script src="/js/sensitive-word/minsu.eunomia.validate.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <base th:href="|${basePath}|">
+    <title>欧诺弥亚管理系统</title>
+    <meta name="keywords" content="欧诺弥亚管理系统">
+    <meta name="description" content="欧诺弥亚管理系统">
+    <link th:rel="|${staticResourceUrl}/shortcut icon|" href="favicon.ico">
+    <link th:href="|${staticResourceUrl}/css/bootstrap.min.css${application.VERSION}|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/font-awesome.css${application.VERSION}|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/plugins/bootstrap-table/bootstrap-table.min.css${application.VERSION}001|"
+          rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/animate.css${application.VERSION}001|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/style.css${application.VERSION}|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/star-rating.css${application.VERSION}001|" rel="stylesheet"
+          type="text/css"/>
+
+    <link th:href="|${staticResourceUrl}/css/custom-z.css${application.VERSION}|" rel="stylesheet">
+    <style type="text/css">
+        .left2 {
+            margin-top: 10px;
+        }
+
+        .row {
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row row-lg">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row m-b">
+                                <label class="col-sm-1 control-label mtop">名称:</label>
+                                <div class="col-sm-2">
+                                    <input id="orgName" name="orgName" class="form-control m-b">
+                                </div>
+
+                                <label class="col-sm-1 control-label mtop">域名:</label>
+                                <div class="col-sm-2">
+                                    <input id="orgDomain" name="orgDomain" class="form-control m-b">
+                                </div>
+
+                                <label class="col-sm-1 control-label mtop">授权状态：</label>
+                                <div class="col-sm-2">
+                                    <select class="form-control" id="orgStatus">
+                                        <option value="">请选择</option>
+                                        <option th:each="status : ${statusList}" th:value="${status.code}" th:text="${status.name}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row m-b">
+                                <button class="btn btn-primary" type="button" onclick="query()"><i
+                                        class="fa fa-search"></i>&nbsp;查询
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel Other -->
+    <div class="ibox float-e-margins">
+        <div class="ibox-content">
+            <div class="row row-lg">
+                <div class="col-sm-12">
+                    <button class="btn btn-primary" type="button" onclick="openSaveModel()">
+                        <i class="fa fa-save"></i>&nbsp;添加
+                    </button>
+                    <div class="example-wrap">
+                        <div class="example">
+                            <table id="listTable" class="table table-bordered table-hover">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- 弹出框 -->
+<div class="modal fade text-center" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document" style="display:inline-block;width:auto;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span>
+                </button>
+                <h4 class="modal-title" id="myModalLabel">添加应用</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <label class="col-sm-2 control-label mtop">名称:</label>
+                    <div class="col-sm-4">
+                        <input id="saveOrgName" name="saveOrgName" type="text" class="form-control m-b">
+                    </div>
+
+                    <label class="col-sm-2 control-label mtop">域名:</label>
+                    <div class="col-sm-4">
+                        <input id="saveOrgDomain" name="saveOrgDomain" type="text" class="form-control m-b">
+                    </div>
+                </div>
+                <div class="row">
+                    <label class="col-sm-2 control-label mtop">层级:</label>
+                    <div class="col-sm-4">
+                        <select class="form-control" id="saveOrgLevel">
+                            <option value="2">应用部门</option>
+                        </select>
+                    </div>
+
+                    <label class="col-sm-2 control-label mtop">用户名:</label>
+                    <div class="col-sm-4">
+                        <input id="saveOrgUsername" name="saveOrgUsername" type="text" class="form-control m-b">
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer" style="text-align: center;">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="saveOrg()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 全局js -->
+<script th:src="|${staticResourceUrl}/js/jquery.min.js${application.VERSION}|"></script>
+<script th:src="|${staticResourceUrl}/js/bootstrap.min.js${application.VERSION}|"></script>
+<!-- 自定义js -->
+<script th:src="|${staticResourceUrl}/js/content.js${application.VERSION}|"></script>
+<!-- Bootstrap table -->
+<script th:src="|${staticResourceUrl}/js/plugins/bootstrap-table/bootstrap-table.min.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/plugins/bootstrap-table/bootstrap-table-mobile.min.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js${application.VERSION}001|"></script>
+<!-- layer javascript -->
+<script th:src="|${staticResourceUrl}/js/plugins/layer/layer.min.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/plugins/layer/laydate/laydate.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/minsu/common/date.proto.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/minsu/common/commonUtils.js${application.VERSION}001|"
+        type="text/javascript"></script>
+
+
+<script type="text/javascript">
+
+    var strapTable = function (tableId, dataUrl, queryParam, columnsData) {
+        $('#' + tableId).bootstrapTable('destroy');
+        $('#' + tableId).bootstrapTable({
+            url: dataUrl,   //请求后台的URL（*）
+            contentType: "application/x-www-form-urlencoded",
+            method: 'post',      //请求方式（*）
+            cache: false,      //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            pagination: true,     //是否显示分页（*）
+            queryParams: queryParam,//传递参数（*）
+            sidePagination: "server",   //分页方式：client客户端分页，server服务端分页（*）
+            pageSize: 10,      //每页的记录行数（*）
+            pageList: [10, 20, 50],  //可供选择的每页的行数（*）
+            columns: columnsData,
+            toggle: 'table',
+            paginationFirstText: '首页',
+            paginationPreText: '上一页',
+            paginationNextText: '下一页',
+            paginationLastText: '末页',
+            singleSelect: true,
+            height: 520,
+            clickToSelect: true
+        });
+    }
+
+    $(function () {
+        strapTable('listTable', 'org/selectByPage', paginationParam, columnsData);
+    });
+
+    // 查询
+    function query() {
+        $('#listTable').bootstrapTable('selectPage', 1);
+    }
+
+    function paginationParam(params) {
+        return {
+            limit: params.limit,
+            page: $('#listTable').bootstrapTable('getOptions').pageNumber,
+            orgName: $('#orgName').val(),
+            orgDomain: $('#orgDomain').val(),
+            orgStatus: $('#orgStatus').val()
+        };
+    }
+
+    //初始化列表列
+    var columnsData = [
+        {
+            field: 'orgName',
+            title: '名称',
+            align: 'center'
+        }, {
+            field: 'orgDomain',
+            title: '域名',
+            align: 'center'
+        }, {
+            field: 'orgLevel',
+            title: '组织级别',
+            align: 'center',
+            formatter: 'formatOrgLevel'
+        }, {
+            field: 'orgUsername',
+            title: '用户名',
+            align: 'center'
+        }, {
+            field: 'orgSecret',
+            title: '授权码',
+            align: 'center'
+        }, {
+            field: 'orgStatus',
+            title: '授权状态',
+            align: 'center',
+            formatter: 'formatOrgStatus'
+        }, {
+            field: 'lastModifyDate',
+            title: '更新时间',
+            align: 'center',
+            formatter: 'CommonUtils.formateTimeStr'
+        }];
+
+    function formatOrgLevel(value, row, index) {
+        if (value == 0) {
+            return "公司";
+        } else if (value == 1) {
+            return "平台";
+        } else if (value == 2) {
+            return "应用部门";
+        } else {
+            return "-";
+        }
+    }
+
+    function formatOrgStatus(value, row, index) {
+        if (value == 0) {
+            return "已授权&nbsp;&nbsp;<button type='button' class='btn btn-primary btn-xs' onclick='updateOrgStatus(\"" + row.fid + "\",1)'>停止</button>";
+        } else if (value == 1) {
+            return "未授权&nbsp;&nbsp;<button type='button' class='btn btn-primary btn-xs' onclick='updateOrgStatus(\"" + row.fid + "\",0)'>启用</button>";
+        }
+    }
+
+    // 授权
+    function updateOrgStatus(fid, orgStatus) {
+        var text = "";
+        if (orgStatus == 0) {
+            text == "授权";
+        } else if (orgStatus == 1) {
+            text == "取消授权"
+        }
+        layer.confirm("确认" + text, function () {
+            $.ajax({
+                type: "POST",
+                url: "org/updateStatus",
+                dataType: "json",
+                data: {
+                    "fid": fid,
+                    "orgStatus": orgStatus
+                },
+                success: function (data) {
+                    if (data) {
+                        layer.closeAll("loading");
+                        if (data.status == 0) {
+                            layer.alert(text + "成功", {icon: 1, time: 2000, title: '提示'});
+                            $('#myModal').modal('hide');
+                            $("#listTable").bootstrapTable('refresh');
+                        } else {
+                            layer.alert(data.message, {icon: 5, time: 2000, title: '提示'});
+                        }
+                    } else {
+                        layer.alert(text + "失败", {icon: 5, time: 2000, title: '提示'});
+                    }
+                },
+                error: function (result) {
+                    layer.closeAll("loading");
+                    layer.alert(text + "失败", {icon: 5, time: 2000, title: '提示'});
+                }
+            });
+        });
+    }
+
+    // 新增 模态框
+    function openSaveModel() {
+        $('#myModal').modal('show');
+    }
+
+    // 新增
+    function saveOrg() {
+        var saveOrgName = $.trim($("#saveOrgName").val());
+        var saveOrgDomain = $.trim($("#saveOrgDomain").val());
+        var saveOrgLevel = $("#saveOrgLevel").val();
+        var saveOrgUsername = $("#saveOrgUsername").val();
+
+        if (saveOrgName == null || saveOrgName == "") {
+            layer.alert("名称必填！", {icon: 5, time: 2000, title: '提示'});
+            return;
+        }
+
+        if (saveOrgDomain == null || saveOrgDomain == "") {
+            layer.alert("域名必填！", {icon: 5, time: 2000, title: '提示'});
+            return;
+        }
+
+        if (saveOrgLevel == null || saveOrgLevel == "") {
+            layer.alert("层级必选！", {icon: 5, time: 2000, title: '提示'});
+            return;
+        }
+
+        if (saveOrgUsername == null || saveOrgUsername == "") {
+            layer.alert("用户名必填！", {icon: 5, time: 2000, title: '提示'});
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "org/add",
+            dataType: "json",
+            data: {
+                "orgName": saveOrgName,
+                "orgDomain": saveOrgDomain,
+                "orgLevel": saveOrgLevel,
+                "orgUsername": saveOrgUsername
+            },
+            success: function (data) {
+                if (data) {
+                    layer.closeAll("loading");
+                    if (data.status == 0) {
+                        layer.alert("增加成功", {icon: 1, time: 2000, title: '提示'});
+                        $('#myModal').modal('hide');
+                        $("#listTable").bootstrapTable('refresh');
+                    } else {
+                        layer.alert(data.message, {icon: 5, time: 2000, title: '提示'});
+                    }
+                } else {
+                    layer.alert("增加失败", {icon: 5, time: 2000, title: '提示'});
+                }
+            },
+            error: function (result) {
+                layer.closeAll("loading");
+                layer.alert("增加失败", {icon: 5, time: 2000, title: '提示'});
+            }
+        });
+    }
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <base th:href="|${basePath}|">
+    <title>欧诺弥亚管理系统</title>
+    <meta name="keywords" content="欧诺弥亚管理系统">
+    <meta name="description" content="欧诺弥亚管理系统">
+    <link th:rel="|${staticResourceUrl}/shortcut icon|" href="favicon.ico">
+    <link th:href="|${staticResourceUrl}/css/bootstrap.min.css${application.VERSION}|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/font-awesome.css${application.VERSION}|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/plugins/bootstrap-table/bootstrap-table.min.css${application.VERSION}001|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/animate.css${application.VERSION}001|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/style.css${application.VERSION}|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/star-rating.css${application.VERSION}001|" rel="stylesheet" type="text/css"/>
+
+    <link th:href="|${staticResourceUrl}/css/custom-z.css${application.VERSION}|" rel="stylesheet">
+    <style type="text/css">
+        .left2 {
+            margin-top: 10px;
+        }
+
+        .row {
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row row-lg">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row m-b">
+                                <label class="col-sm-1 control-label mtop">词文本:</label>
+                                <div class="col-sm-2">
+                                    <input id="content" name="content" class="form-control m-b">
+                                </div>
+                                <label class="col-sm-1 control-label mtop">类型：</label>
+                                <div class="col-sm-2">
+                                    <select class="form-control" id="sensitiveWordType">
+                                        <option value="">请选择</option>
+                                        <option th:each="type : ${typeList}" th:value="${type.code}" th:text="${type.name}"></option>
+                                    </select>
+                                </div>
+                                <label class="col-sm-1 control-label mtop">审核状态：</label>
+                                <div class="col-sm-2">
+                                    <select class="form-control" id="sensitiveWordStatus">
+                                        <option value="">请选择</option>
+                                        <option th:each="status : ${statusList}" th:value="${status.code}" th:text="${status.name}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row m-b">
+                                <button class="btn btn-primary" type="button" onclick="query()"><i
+                                        class="fa fa-search"></i>&nbsp;查询
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel Other -->
+    <div class="ibox float-e-margins">
+        <div class="ibox-content">
+            <div class="row row-lg">
+                <div class="col-sm-12">
+                    <button class="btn btn-primary" type="button" onclick="openSaveModel()">
+                        <i class="fa fa-save"></i>&nbsp;添加
+                    </button>
+                    <div class="example-wrap">
+                        <div class="example">
+                            <table id="listTable" class="table table-bordered table-hover">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- 弹出框 -->
+<div class="modal fade text-center" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document" style="display:inline-block;width:auto;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">添加敏感词</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <label class="col-sm-2 control-label mtop">类型:</label>
+                    <div class="col-sm-4">
+                        <select class="form-control" id="saveSensitiveWordType">
+                            <option value="">请选择</option>
+                            <option th:each="type : ${typeList}" th:value="${type.code}" th:text="${type.name}"></option>
+                        </select>
+                    </div>
+
+                    <label class="col-sm-2 control-label mtop">文本:</label>
+                    <div class="col-sm-4">
+                        <input id="saveContent" name="saveContent" type="text" class="form-control m-b">
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer" style="text-align: center;">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="saveSensitiveWord()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 弹出框 -->
+<div class="modal fade text-center" id="updateModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document" style="display:inline-block;width:auto;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="updateModalLabel">修改敏感词</h4>
+                <input type="hidden" id="updateFid">
+            </div>
+            <div class="modal-body">
+                <div class="row">
+
+                    <label class="col-sm-2 control-label mtop">类型:</label>
+                    <div class="col-sm-4">
+                        <select class="form-control" id="updateSensitiveWordType">
+                            <option value="">请选择</option>
+                            <option th:each="type : ${typeList}" th:value="${type.code}" th:text="${type.name}"></option>
+                        </select>
+                    </div>
+
+                    <label class="col-sm-2 control-label mtop">文本:</label>
+                    <div class="col-sm-4">
+                        <input id="updateContent" name="updateContent" type="text" class="form-control m-b">
+                    </div>
+
+                </div>
+            </div>
+            <div class="modal-footer" style="text-align: center;">
+                <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                <button type="button" class="btn btn-primary" onclick="updateSensitiveWord()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 全局js -->
+<script th:src="|${staticResourceUrl}/js/jquery.min.js${application.VERSION}|"></script>
+<script th:src="|${staticResourceUrl}/js/bootstrap.min.js${application.VERSION}|"></script>
+<!-- 自定义js -->
+<script th:src="|${staticResourceUrl}/js/content.js${application.VERSION}|"></script>
+<!-- Bootstrap table -->
+<script th:src="|${staticResourceUrl}/js/plugins/bootstrap-table/bootstrap-table.min.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/plugins/bootstrap-table/bootstrap-table-mobile.min.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js${application.VERSION}001|"></script>
+<!-- layer javascript -->
+<script th:src="|${staticResourceUrl}/js/plugins/layer/layer.min.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/plugins/layer/laydate/laydate.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/minsu/common/date.proto.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/minsu/common/commonUtils.js${application.VERSION}001|" type="text/javascript"></script>
+
+
+<script th:inline="javascript">
+
+    var strapTable = function (tableId, dataUrl, queryParam, columnsData) {
+        $('#' + tableId).bootstrapTable('destroy');
+        $('#' + tableId).bootstrapTable({
+            url: dataUrl,   //请求后台的URL（*）
+            contentType: "application/x-www-form-urlencoded",
+            method: 'post',      //请求方式（*）
+            cache: false,      //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            pagination: true,     //是否显示分页（*）
+            queryParams: queryParam,//传递参数（*）
+            sidePagination: "server",   //分页方式：client客户端分页，server服务端分页（*）
+            pageSize: 10,      //每页的记录行数（*）
+            pageList: [10, 20, 50],  //可供选择的每页的行数（*）
+            columns: columnsData,
+            toggle: 'table',
+            paginationFirstText: '首页',
+            paginationPreText: '上一页',
+            paginationNextText: '下一页',
+            paginationLastText: '末页',
+            singleSelect: true,
+            height: 520,
+            clickToSelect: true
+        });
+    }
+
+    $(function () {
+        strapTable('listTable', 'sensitiveWord/selectByPage', paginationParam, columnsData);
+    });
+
+    // 查询
+    function query() {
+        $('#listTable').bootstrapTable('selectPage', 1);
+    }
+
+    function paginationParam(params) {
+        return {
+            limit: params.limit,
+            page: $('#listTable').bootstrapTable('getOptions').pageNumber,
+            content: $('#content').val(),
+            sensitiveWordType: $('#sensitiveWordType').val(),
+            sensitiveWordStatus: $('#sensitiveWordStatus').val()
+        };
+    }
+
+    //初始化列表列
+    var columnsData = [
+        {
+            field: 'fid',
+            title: 'fid',
+            align: 'center'
+        }, {
+            field: 'sensitiveWordType',
+            title: '类型',
+            align: 'center',
+            formatter: 'formatType'
+        }, {
+            field: 'content',
+            title: '词文本',
+            align: 'center'
+        }, {
+            field: 'sensitiveWordStatus',
+            title: '状态',
+            align: 'center',
+            formatter: 'formatStatus'
+        }, {
+            field: 'lastModifyDate',
+            title: '更新时间',
+            align: 'center',
+            formatter: 'CommonUtils.formateTimeStr'
+        }, {
+            title: '操作',
+            align: 'center',
+            formatter: 'formateOper'
+        }];
+
+    // 类型列表
+    var typeList = [[${typeList}]];
+    var typeMap = {};
+    for(var i in typeList){
+        typeMap[typeList[i].code] = typeList[i].name;
+    }
+    // 状态列表
+    var statusList = [[${statusList}]];
+    var statusMap = {};
+    for(var i in statusList){
+        statusMap[statusList[i].code] = statusList[i].name;
+    }
+
+
+    function formatType(value, row, index) {
+        var typeName = typeMap[value];
+        return typeName ? typeName : "-";
+    }
+
+    function formatStatus(value, row, index) {
+        var statusName = statusMap[value];
+        return statusName ? statusName : "-";
+    }
+
+    // 操作栏
+    function formateOper(value, row, index) {
+        // 待审核|审核驳回 可以修改|删除
+        if(row.sensitiveWordStatus == 0 || row.sensitiveWordStatus == 2){
+            return "<button type='button' class='btn btn-primary btn-xs' onclick='openUpdateModel(\""+row.fid+"\",\""+row.sensitiveWordType+"\",\""+row.content+"\")'>修改</button>" +
+                "&nbsp;&nbsp;<button type='button' class='btn btn-primary btn-xs' onclick='deleteSensitiveWord(\""+row.fid+"\",\""+row.sensitiveWordStatus+"\")'>删除</button>";
+        }else if(row.sensitiveWordStatus == 1){
+            // 审核通过 根据权限显示按钮
+            if([[${forceDelete}]]){
+                return "<button type='button' class='btn btn-primary btn-xs' onclick='deleteSensitiveWord(\""+row.fid+"\",\""+row.sensitiveWordStatus+"\")'>紧急删除</button>";
+            }else{
+                return "-";
+            }
+        }else{
+            return "-";
+        }
+    }
+
+    // 修改 模态框
+    function openUpdateModel(fid, sensitiveWordType, content) {
+        $('#updateFid').val(fid);
+        $('#updateSensitiveWordType').val(sensitiveWordType);
+        $('#updateContent').val(content);
+
+        $('#updateModal').modal('show');
+    }
+
+    // 修改
+    function updateSensitiveWord() {
+        var updateSensitiveWordType = $("#updateSensitiveWordType").val();
+        var updateContent = $.trim($("#updateContent").val());
+
+        if(updateSensitiveWordType == null || updateSensitiveWordType == ""){
+            layer.alert("类型必填！", {icon: 5,time: 2000, title:'提示'});
+            return;
+        }
+
+        if(updateContent == null || updateContent == ""){
+            layer.alert("内容必填！", {icon: 5,time: 2000, title:'提示'});
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "sensitiveWord/update",
+            dataType:"json",
+            data: {
+                "fid":$('#updateFid').val(),
+                "sensitiveWordType":updateSensitiveWordType,
+                "content":updateContent
+            },
+            success: function (data) {
+                if(data){
+                    layer.closeAll("loading");
+                    if (data.status == 0){
+                        layer.alert("修改成功", {icon: 1,time: 2000, title:'提示'});
+                        $('#updateModal').modal('hide');
+                        $("#listTable").bootstrapTable('refresh');
+                    }else{
+                        layer.alert(data.message, {icon: 5,time: 2000, title:'提示'});
+                    }
+                }else{
+                    layer.alert("修改失败", {icon: 5,time: 2000, title:'提示'});
+                }
+            },
+            error: function(result) {
+                layer.closeAll("loading");
+                layer.alert("修改失败", {icon: 5,time: 2000, title:'提示'});
+            }
+        });
+    }
+
+
+    // 删除
+    function deleteSensitiveWord(fid, sensitiveWordStatus) {
+        var url = "";
+        if(sensitiveWordStatus == 0 || sensitiveWordStatus == 2){
+            url = "sensitiveWord/normalDelete";
+        }else if(sensitiveWordStatus == 1){
+            url = "sensitiveWord/forceDelete";
+        }
+        layer.confirm("确认删除？", function() {
+            $.ajax({
+                type: "POST",
+                url: url,
+                dataType:"json",
+                data: {
+                    "fid":fid
+                },
+                success: function (data) {
+                    if(data){
+                        layer.closeAll("loading");
+                        if (data.status == 0){
+                            layer.alert("删除成功", {icon: 1,time: 2000, title:'提示'});
+                            $('#myModal').modal('hide');
+                            $("#listTable").bootstrapTable('refresh');
+                        }else{
+                            layer.alert(data.message, {icon: 5,time: 2000, title:'提示'});
+                        }
+                    }else{
+                        layer.alert("删除失败", {icon: 5,time: 2000, title:'提示'});
+                    }
+                },
+                error: function(result) {
+                    layer.closeAll("loading");
+                    layer.alert("删除失败", {icon: 5,time: 2000, title:'提示'});
+                }
+            });
+        });
+    }
+
+    // 新增 模态框
+    function openSaveModel() {
+        $('#myModal').modal('show');
+    }
+
+    // 新增
+    function saveSensitiveWord() {
+        var saveSensitiveWordType = $("#saveSensitiveWordType").val();
+        var saveContent = $.trim($("#saveContent").val());
+
+        if(saveSensitiveWordType == null || saveSensitiveWordType == ""){
+            layer.alert("类型必填！", {icon: 5,time: 2000, title:'提示'});
+            return;
+        }
+
+        if(saveContent == null || saveContent == ""){
+            layer.alert("内容必填！", {icon: 5,time: 2000, title:'提示'});
+            return;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "sensitiveWord/add",
+            dataType:"json",
+            data: {
+                "sensitiveWordType":saveSensitiveWordType,
+                "content":saveContent
+            },
+            success: function (data) {
+                if(data){
+                    layer.closeAll("loading");
+                    if (data.status == 0){
+                        layer.alert("增加成功", {icon: 1,time: 2000, title:'提示'});
+                        $('#myModal').modal('hide');
+                        $("#listTable").bootstrapTable('refresh');
+                    }else{
+                        layer.alert(data.message, {icon: 5,time: 2000, title:'提示'});
+                    }
+                }else{
+                    layer.alert("增加失败", {icon: 5,time: 2000, title:'提示'});
+                }
+            },
+            error: function(result) {
+                layer.closeAll("loading");
+                layer.alert("增加失败", {icon: 5,time: 2000, title:'提示'});
+            }
+        });
+    }
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,51 @@
+## 本地开发，另外复制该文件，重命名为“application-local.properties”
+
+## port
+server.port=8081
+
+#主库
+spring.datasource.druid.master.type=com.alibaba.druid.pool.DruidDataSource
+spring.datasource.druid.master.url=jdbc:mysql://10.16.16.148:3306/minsu_eunomia_db
+spring.datasource.druid.master.username=dz_dev
+spring.datasource.druid.master.password=ziroom
+spring.datasource.druid.master.driver-class-name=com.mysql.jdbc.Driver
+spring.datasource.druid.master.max-active=10
+spring.datasource.druid.master.max-wait=10000
+#从库
+spring.datasource.druid.slave.type=com.alibaba.druid.pool.DruidDataSource
+spring.datasource.druid.slave.url=jdbc:mysql://10.16.16.148:3306/minsu_eunomia_db
+spring.datasource.druid.slave.username=dz_dev
+spring.datasource.druid.slave.password=ziroom
+spring.datasource.druid.slave.driver-class-name=com.mysql.jdbc.Driver
+spring.datasource.druid.slave.max-active=10
+spring.datasource.druid.slave.max-wait=10000
+
+# session共享
+ziroom.tomcat.session.address=redis://redis.d.ziroom.com:6379
+## redis
+spring.redis.host=redis.d.ziroom.com
+spring.redis.port=6379
+spring.redis.pool.max-active=30
+spring.redis.pool.max-wait=2000
+spring.redis.pool.max-idle=10
+spring.redis.pool.min-idle=5
+spring.redis.timeout=2000
+
+## ziroom cas
+spring.cas.cas-server-login-url=http://cas.ziroom.com/CAS/login
+spring.cas.cas-server-url-prefix=http://cas.ziroom.com/CAS
+spring.cas.ignore-pattern=/api/*|/sensitive/*
+## cas callback url(dev)
+spring.cas.server-name=http://localhost:8081
+
+# ups
+ups.systemCode=eunomia
+ups.userMsgApi=http://ups.d.ziroom.com/upsApi/upsUserMsg
+
+# 静态资源地址
+eunomia.static.resource.url=http://minsustatic.d.ziroom.com/eunomia
+login.error.msg=对不起，你还没有访问系统权限，请联系管理员设置相关权限。
+eunomia.web.logout.url=http\://cas.ziroom.com/CAS/logout?service\=http\://localhost:8081
+
+#js版本号配置参数变量X
+JS_VERSION_X=js.version.1.1

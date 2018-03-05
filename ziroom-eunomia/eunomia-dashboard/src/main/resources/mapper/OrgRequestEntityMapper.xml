@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ziroom.eunomia.dashboard.mapper.OrgRequestEntityMapper">
+    <resultMap id="BaseResultMap" type="com.ziroom.eunomia.dashboard.model.entity.OrgRequestEntity">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="fid" property="fid" jdbcType="VARCHAR"/>
+        <result column="org_fid" property="orgFid" jdbcType="VARCHAR"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, fid, org_fid, content, create_date
+    </sql>
+
+    <!-- 调用记录VO -->
+    <resultMap id="OrgRequestVoMap" type="com.ziroom.eunomia.dashboard.model.vo.OrgRequestVo" extends="BaseResultMap">
+        <result column="org_name" property="orgName" jdbcType="VARCHAR" />
+        <result column="org_domain" property="orgDomain" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="selectByPage" resultMap="OrgRequestVoMap">
+        select
+        treq.fid, treq.org_fid, treq.content, treq.create_date,
+        torg.org_name, torg.org_domain
+        from t_sensitive_word_org_request treq
+        left join t_organization torg on treq.org_fid = torg.fid
+        where 1 = 1
+        <if test="orgFid != null and orgFid != ''">
+            and treq.org_fid = #{orgFid,jdbcType=VARCHAR}
+        </if>
+        <if test="startDate != null and startDate != ''">
+            and treq.create_date &gt;= #{startDate,jdbcType=TIMESTAMP}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            and treq.create_date &lt; #{endDate,jdbcType=TIMESTAMP}
+        </if>
+        order by treq.id desc
+    </select>
+
+    <insert id="insertSelective" parameterType="com.ziroom.eunomia.dashboard.model.entity.OrgRequestEntity">
+        insert into t_sensitive_word_org_request
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="fid != null">
+                fid,
+            </if>
+            <if test="orgFid != null">
+                org_fid,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            <if test="createDate != null">
+                create_date,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="fid != null">
+                #{fid,jdbcType=VARCHAR},
+            </if>
+            <if test="orgFid != null">
+                #{orgFid,jdbcType=VARCHAR},
+            </if>
+            <if test="content != null">
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="createDate != null">
+                #{createDate,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+</mapper>

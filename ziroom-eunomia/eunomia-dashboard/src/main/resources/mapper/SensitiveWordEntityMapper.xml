@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ziroom.eunomia.dashboard.mapper.SensitiveWordEntityMapper">
+    <resultMap id="BaseResultMap" type="com.ziroom.eunomia.dashboard.model.entity.SensitiveWordEntity">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="fid" property="fid" jdbcType="VARCHAR"/>
+        <result column="sensitive_word_type" property="sensitiveWordType" jdbcType="INTEGER"/>
+        <result column="content" property="content" jdbcType="VARCHAR"/>
+        <result column="sensitive_word_status" property="sensitiveWordStatus" jdbcType="INTEGER"/>
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP"/>
+        <result column="last_modify_date" property="lastModifyDate" jdbcType="TIMESTAMP"/>
+        <result column="is_del" property="isDel" jdbcType="INTEGER"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, fid, sensitive_word_type, content, sensitive_word_status, create_date, last_modify_date, is_del
+    </sql>
+    <select id="selectOne" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sensitive_word
+        where fid = #{fid,jdbcType=VARCHAR}
+    </select>
+
+    <select id="selectByPage" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from t_sensitive_word
+        where is_del = 0
+        <if test="sensitiveWordType != null">
+            AND sensitive_word_type = #{sensitiveWordType,jdbcType=INTEGER}
+        </if>
+        <if test="content != null and content != ''">
+            AND content = #{content,jdbcType=VARCHAR}
+        </if>
+        <if test="sensitiveWordStatus != null">
+            AND sensitive_word_status = #{sensitiveWordStatus,jdbcType=VARCHAR}
+        </if>
+        order by id desc
+    </select>
+
+    <insert id="addSensitiveWord" parameterType="com.ziroom.eunomia.dashboard.model.entity.SensitiveWordEntity">
+        insert into t_sensitive_word
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="fid != null">
+                fid,
+            </if>
+            <if test="sensitiveWordType != null">
+                sensitive_word_type,
+            </if>
+            <if test="content != null">
+                content,
+            </if>
+            <if test="sensitiveWordStatus != null">
+                sensitive_word_status,
+            </if>
+            <if test="createDate != null">
+                create_date,
+            </if>
+            <if test="lastModifyDate != null">
+                last_modify_date,
+            </if>
+            <if test="isDel != null">
+                is_del,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="fid != null">
+                #{fid,jdbcType=VARCHAR},
+            </if>
+            <if test="sensitiveWordType != null">
+                #{sensitiveWordType,jdbcType=INTEGER},
+            </if>
+            <if test="content != null">
+                #{content,jdbcType=VARCHAR},
+            </if>
+            <if test="sensitiveWordStatus != null">
+                #{sensitiveWordStatus,jdbcType=INTEGER},
+            </if>
+            <if test="createDate != null">
+                #{createDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastModifyDate != null">
+                #{lastModifyDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="isDel != null">
+                #{isDel,jdbcType=INTEGER},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateSensitiveWord" parameterType="com.ziroom.eunomia.dashboard.model.entity.SensitiveWordEntity">
+        update t_sensitive_word
+        set sensitive_word_status = #{sensitiveWordStatus,jdbcType=INTEGER},
+        sensitive_word_type = #{sensitiveWordType,jdbcType=INTEGER},
+        content = #{content,jdbcType=VARCHAR}
+        where fid = #{fid,jdbcType=VARCHAR}
+    </update>
+
+    <update id="deleteSensitiveWord" parameterType="com.ziroom.eunomia.dashboard.model.entity.SensitiveWordEntity">
+        update t_sensitive_word
+        set is_del = 1
+        where fid = #{fid,jdbcType=VARCHAR}
+    </update>
+
+    <update id="auditSensitiveWord" parameterType="com.ziroom.eunomia.dashboard.model.entity.SensitiveWordEntity">
+        update t_sensitive_word
+        set sensitive_word_status = #{sensitiveWordStatus,jdbcType=INTEGER}
+        where fid = #{fid,jdbcType=VARCHAR}
+    </update>
+
+    <!-- 查询全部的敏感词 -->
+    <select id="selectAll" resultMap="BaseResultMap" >
+        select
+        <include refid="Base_Column_List" />
+        from t_sensitive_word
+        where is_del = 0
+    </select>
+
+    <!-- 查询敏感词 By 最后修改时间 -->
+    <select id="selectByLastModifytime" resultMap="BaseResultMap" parameterType="java.sql.Timestamp" >
+        select
+        <include refid="Base_Column_List" />
+        from
+        t_sensitive_word
+        where
+        last_modify_date <![CDATA[ >= ]]> #{start,jdbcType=TIMESTAMP}
+        AND
+        last_modify_date <![CDATA[ <= ]]> #{end,jdbcType=TIMESTAMP}
+    </select>
+
+</mapper>

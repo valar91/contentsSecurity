@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ziroom.eunomia.dashboard.mapper.OrgSensitiveResultEntityMapper" >
+  <resultMap id="BaseResultMap" type="com.ziroom.eunomia.dashboard.model.entity.OrgSensitiveResultEntity" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="fid" property="fid" jdbcType="VARCHAR" />
+    <result column="request_fid" property="requestFid" jdbcType="VARCHAR" />
+    <result column="sensitive_word_fid" property="sensitiveWordFid" jdbcType="VARCHAR" />
+    <result column="sensitive_word" property="sensitiveWord" jdbcType="VARCHAR" />
+    <result column="sensitive_count" property="sensitiveCount" jdbcType="INTEGER" />
+    <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, fid, request_fid, sensitive_word_fid, sensitive_word, sensitive_count, create_date
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from t_sensitive_word_org_result
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from t_sensitive_word_org_result
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" parameterType="com.ziroom.eunomia.dashboard.model.entity.OrgSensitiveResultEntity" >
+    insert into t_sensitive_word_org_result (id, fid, request_fid, 
+      sensitive_word_fid, sensitive_word, sensitive_count, create_date)
+    values (#{id,jdbcType=BIGINT}, #{fid,jdbcType=VARCHAR}, #{requestFid,jdbcType=VARCHAR}, 
+      #{sensitiveWordFid,jdbcType=VARCHAR}, #{sensitiveWord,jdbcType=VARCHAR},
+      #{sensitiveCount,jdbcType=INTEGER}, #{createDate,jdbcType=TIMESTAMP})
+  </insert>
+  <insert id="insertSelective" parameterType="com.ziroom.eunomia.dashboard.model.entity.OrgSensitiveResultEntity" >
+    insert into t_sensitive_word_org_result
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="fid != null" >
+        fid,
+      </if>
+      <if test="requestFid != null" >
+        request_fid,
+      </if>
+      <if test="sensitiveWordFid != null" >
+        sensitive_word_fid,
+      </if>
+      <if test="sensitiveWord != null" >
+        sensitive_word,
+      </if>
+      <if test="sensitiveCount != null" >
+          sensitive_count,
+      </if>
+      <if test="createDate != null" >
+        create_date,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=BIGINT},
+      </if>
+      <if test="fid != null" >
+        #{fid,jdbcType=VARCHAR},
+      </if>
+      <if test="requestFid != null" >
+        #{requestFid,jdbcType=VARCHAR},
+      </if>
+      <if test="sensitiveWordFid != null" >
+        #{sensitiveWordFid,jdbcType=VARCHAR},
+      </if>
+      <if test="sensitiveWord != null" >
+        #{sensitiveWord,jdbcType=VARCHAR},
+      </if>
+      <if test="sensitiveCount != null" >
+        #{sensitive_count,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </trim>
+  </insert>
+
+  <!-- 批量插入 -->
+  <insert id="insertBatch" parameterType="com.ziroom.eunomia.dashboard.model.entity.OrgSensitiveResultEntity" >
+    insert into t_sensitive_word_org_result
+      (
+        fid,
+        request_fid,
+        sensitive_word_fid,
+        sensitive_word,
+        sensitive_count
+      )
+    values
+    <foreach item="item" collection="list" separator=",">
+      (
+        #{item.fid,jdbcType=VARCHAR},
+        #{item.requestFid,jdbcType=VARCHAR},
+        <if test="item.sensitiveWordFid != null" >
+          #{item.sensitiveWordFid,jdbcType=VARCHAR},
+        </if>
+        #{item.sensitiveWord,jdbcType=VARCHAR},
+        #{item.sensitiveCount,jdbcType=INTEGER}
+      )
+    </foreach>
+  </insert>
+
+  <update id="updateByPrimaryKeySelective" parameterType="com.ziroom.eunomia.dashboard.model.entity.OrgSensitiveResultEntity" >
+    update t_sensitive_word_org_result
+    <set >
+      <if test="fid != null" >
+        fid = #{fid,jdbcType=VARCHAR},
+      </if>
+      <if test="requestFid != null" >
+        request_fid = #{requestFid,jdbcType=VARCHAR},
+      </if>
+      <if test="sensitiveWordFid != null" >
+        sensitive_word_fid = #{sensitiveWordFid,jdbcType=VARCHAR},
+      </if>
+      <if test="sensitiveWord != null" >
+        sensitive_word = #{sensitiveWord,jdbcType=VARCHAR},
+      </if>
+      <if test="sensitiveCount != null" >
+        sensitive_count = #{sensitiveCount,jdbcType=INTEGER},
+      </if>
+      <if test="createDate != null" >
+        create_date = #{createDate,jdbcType=TIMESTAMP},
+      </if>
+    </set>
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.ziroom.eunomia.dashboard.model.entity.OrgSensitiveResultEntity" >
+    update t_sensitive_word_org_result
+    set fid = #{fid,jdbcType=VARCHAR},
+      request_fid = #{requestFid,jdbcType=VARCHAR},
+      sensitive_word_fid = #{sensitiveWordFid,jdbcType=VARCHAR},
+      sensitive_word = #{sensitiveWord,jdbcType=VARCHAR},
+      sensitive_count = #{sensitiveCount,jdbcType=INTEGER},
+      create_date = #{createDate,jdbcType=TIMESTAMP}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+</mapper>

@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ziroom.eunomia.dashboard.mapper.OrgMapper" >
+    <resultMap id="BaseResultMap" type="com.ziroom.eunomia.dashboard.model.entity.OrgEntity" >
+        <id column="id" property="id" jdbcType="INTEGER" />
+        <result column="fid" property="fid" jdbcType="VARCHAR" />
+        <result column="org_name" property="orgName" jdbcType="VARCHAR" />
+        <result column="org_domain" property="orgDomain" jdbcType="VARCHAR" />
+        <result column="org_username" property="orgUsername" jdbcType="VARCHAR" />
+        <result column="org_level" property="orgLevel" jdbcType="INTEGER" />
+        <result column="parent_fid" property="parentFid" jdbcType="VARCHAR" />
+        <result column="org_secret" property="orgSecret" jdbcType="VARCHAR" />
+        <result column="org_status" property="orgStatus" jdbcType="INTEGER" />
+        <result column="is_del" property="isDel" jdbcType="INTEGER" />
+        <result column="create_date" property="createDate" jdbcType="TIMESTAMP" />
+        <result column="last_modify_date" property="lastModifyDate" jdbcType="TIMESTAMP" />
+    </resultMap>
+
+    <sql id="Base_Column_List" >
+        id, fid, org_name, org_domain, org_username, org_level, parent_fid, org_secret, org_status, is_del,
+        create_date, last_modify_date
+    </sql>
+
+    <select id="selectByPage" resultMap="BaseResultMap" >
+        select
+        <include refid="Base_Column_List" />
+        from t_organization
+        where is_del = 0
+        <if test="orgName != null and orgName != ''" >
+            and org_name = #{orgName,jdbcType=VARCHAR}
+        </if>
+        <if test="orgDomain != null and orgDomain != ''" >
+            and org_domain = #{orgDomain,jdbcType=VARCHAR}
+        </if>
+        <if test="orgLevel != null" >
+            and org_level = #{orgLevel,jdbcType=INTEGER}
+        </if>
+        <if test="orgStatus != null" >
+            and org_status = #{orgStatus,jdbcType=INTEGER}
+        </if>
+        order by id asc
+    </select>
+
+    <select id="selectAll" resultMap="BaseResultMap" >
+        select
+        <include refid="Base_Column_List" />
+        from t_organization
+        where is_del = 0
+        <if test="orgLevel != null" >
+            and org_level = #{orgLevel,jdbcType=INTEGER}
+        </if>
+        order by id asc
+    </select>
+
+    <insert id="addOrg" parameterType="com.ziroom.eunomia.dashboard.model.entity.OrgEntity" >
+        insert into t_organization
+        <trim prefix="(" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                id,
+            </if>
+            <if test="fid != null" >
+                fid,
+            </if>
+            <if test="orgName != null" >
+                org_name,
+            </if>
+            <if test="orgDomain != null" >
+                org_domain,
+            </if>
+            <if test="orgUsername != null" >
+                org_username,
+            </if>
+            <if test="orgLevel != null" >
+                org_level,
+            </if>
+            <if test="parentFid != null" >
+                parent_fid,
+            </if>
+            <if test="orgSecret != null" >
+                org_secret,
+            </if>
+            <if test="orgStatus != null" >
+                org_status,
+            </if>
+            <if test="isDel != null" >
+                is_del,
+            </if>
+            <if test="createDate != null" >
+                create_date,
+            </if>
+            <if test="lastModifyDate != null" >
+                last_modify_date,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides="," >
+            <if test="id != null" >
+                #{id,jdbcType=INTEGER},
+            </if>
+            <if test="fid != null" >
+                #{fid,jdbcType=VARCHAR},
+            </if>
+            <if test="orgName != null" >
+                #{orgName,jdbcType=VARCHAR},
+            </if>
+            <if test="orgDomain != null" >
+                #{orgDomain,jdbcType=VARCHAR},
+            </if>
+            <if test="orgUsername != null" >
+                #{orgUsername,jdbcType=VARCHAR},
+            </if>
+            <if test="orgLevel != null" >
+                #{orgLevel,jdbcType=INTEGER},
+            </if>
+            <if test="parentFid != null" >
+                #{parentFid,jdbcType=VARCHAR},
+            </if>
+            <if test="orgSecret != null" >
+                #{orgSecret,jdbcType=VARCHAR},
+            </if>
+            <if test="orgStatus != null" >
+                #{orgStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isDel != null" >
+                #{isDel,jdbcType=INTEGER},
+            </if>
+            <if test="createDate != null" >
+                #{createDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="lastModifyDate != null" >
+                #{lastModifyDate,jdbcType=TIMESTAMP},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="updateOrg" parameterType="com.ziroom.eunomia.dashboard.model.entity.OrgEntity" >
+        update t_organization
+        <set >
+            <if test="orgName != null" >
+                org_name = #{orgName,jdbcType=VARCHAR},
+            </if>
+            <if test="orgDomain != null" >
+                org_domain = #{orgDomain,jdbcType=VARCHAR},
+            </if>
+            <if test="orgStatus != null" >
+                org_status = #{orgStatus,jdbcType=INTEGER},
+            </if>
+            <if test="isDel != null" >
+                is_del = #{isDel,jdbcType=INTEGER},
+            </if>
+        </set>
+        where fid = #{fid,jdbcType=VARCHAR}
+    </update>
+
+    <!-- 查询调用方根据用户名 -->
+    <select id="selectByUsername" resultMap="BaseResultMap" >
+        select
+        <include refid="Base_Column_List" />
+        from t_organization
+        where
+        org_username = #{orgUsername,jdbcType=VARCHAR}
+        AND
+          is_del = 0
+    </select>
+
+    <!-- 查询调用方根据Fid -->
+    <select id="selectByFid" resultMap="BaseResultMap" >
+        select
+        <include refid="Base_Column_List" />
+        from t_organization
+        where
+          fid = #{fid,jdbcType=VARCHAR}
+        AND
+          is_del = 0
+    </select>
+
+</mapper>

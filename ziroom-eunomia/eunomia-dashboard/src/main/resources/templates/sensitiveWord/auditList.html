@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <base th:href="|${basePath}|">
+    <title>欧诺弥亚管理系统</title>
+    <meta name="keywords" content="欧诺弥亚管理系统">
+    <meta name="description" content="欧诺弥亚管理系统">
+    <link th:rel="|${staticResourceUrl}/shortcut icon|" href="favicon.ico">
+    <link th:href="|${staticResourceUrl}/css/bootstrap.min.css${application.VERSION}|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/font-awesome.css${application.VERSION}|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/plugins/bootstrap-table/bootstrap-table.min.css${application.VERSION}001|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/animate.css${application.VERSION}001|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/style.css${application.VERSION}|" rel="stylesheet">
+    <link th:href="|${staticResourceUrl}/css/star-rating.css${application.VERSION}001|" rel="stylesheet" type="text/css"/>
+
+    <link th:href="|${staticResourceUrl}/css/custom-z.css${application.VERSION}|" rel="stylesheet">
+    <style type="text/css">
+        .left2 {
+            margin-top: 10px;
+        }
+
+        .row {
+            margin: 0;
+        }
+    </style>
+</head>
+<body class="gray-bg">
+<div class="wrapper wrapper-content animated fadeInRight">
+    <div class="row row-lg">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="row m-b">
+                                <label class="col-sm-1 control-label mtop">词文本:</label>
+                                <div class="col-sm-2">
+                                    <input id="content" name="content" class="form-control m-b">
+                                </div>
+                                <label class="col-sm-1 control-label mtop">类型：</label>
+                                <div class="col-sm-2">
+                                    <select class="form-control" id="sensitiveWordType">
+                                        <option value="">请选择</option>
+                                        <option th:each="type : ${typeList}" th:value="${type.code}" th:text="${type.name}"></option>
+                                    </select>
+                                </div>
+                                <label class="col-sm-1 control-label mtop">审核状态：</label>
+                                <div class="col-sm-2">
+                                    <select class="form-control" id="sensitiveWordStatus">
+                                        <option value="">请选择</option>
+                                        <option th:each="status : ${statusList}" th:value="${status.code}" th:text="${status.name}"></option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row m-b">
+                                <button class="btn btn-primary" type="button" onclick="query()"><i
+                                        class="fa fa-search"></i>&nbsp;查询
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel Other -->
+    <div class="ibox float-e-margins">
+        <div class="ibox-content">
+            <div class="row row-lg">
+                <div class="col-sm-12">
+                    <div class="example-wrap">
+                        <div class="example">
+                            <table id="listTable" class="table table-bordered table-hover">
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- 全局js -->
+<script th:src="|${staticResourceUrl}/js/jquery.min.js${application.VERSION}|"></script>
+<script th:src="|${staticResourceUrl}/js/bootstrap.min.js${application.VERSION}|"></script>
+<!-- 自定义js -->
+<script th:src="|${staticResourceUrl}/js/content.js${application.VERSION}|"></script>
+<!-- Bootstrap table -->
+<script th:src="|${staticResourceUrl}/js/plugins/bootstrap-table/bootstrap-table.min.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/plugins/bootstrap-table/bootstrap-table-mobile.min.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.min.js${application.VERSION}001|"></script>
+<!-- layer javascript -->
+<script th:src="|${staticResourceUrl}/js/plugins/layer/layer.min.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/plugins/layer/laydate/laydate.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/minsu/common/date.proto.js${application.VERSION}001|"></script>
+<script th:src="|${staticResourceUrl}/js/minsu/common/commonUtils.js${application.VERSION}001|" type="text/javascript"></script>
+
+
+<script th:inline="javascript">
+
+    var strapTable = function (tableId, dataUrl, queryParam, columnsData) {
+        $('#' + tableId).bootstrapTable('destroy');
+        $('#' + tableId).bootstrapTable({
+            url: dataUrl,   //请求后台的URL（*）
+            contentType: "application/x-www-form-urlencoded",
+            method: 'post',      //请求方式（*）
+            cache: false,      //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            pagination: true,     //是否显示分页（*）
+            queryParams: queryParam,//传递参数（*）
+            sidePagination: "server",   //分页方式：client客户端分页，server服务端分页（*）
+            pageSize: 10,      //每页的记录行数（*）
+            pageList: [10, 20, 50],  //可供选择的每页的行数（*）
+            columns: columnsData,
+            toggle: 'table',
+            paginationFirstText: '首页',
+            paginationPreText: '上一页',
+            paginationNextText: '下一页',
+            paginationLastText: '末页',
+            singleSelect: true,
+            height: 520,
+            clickToSelect: true
+        });
+    }
+
+    $(function () {
+        strapTable('listTable', 'sensitiveWord/selectAuditList', paginationParam, columnsData);
+    });
+
+    // 查询
+    function query() {
+        $('#listTable').bootstrapTable('selectPage', 1);
+    }
+
+    function paginationParam(params) {
+        return {
+            limit: params.limit,
+            page: $('#listTable').bootstrapTable('getOptions').pageNumber,
+            content: $('#content').val(),
+            sensitiveWordType: $('#sensitiveWordType').val(),
+            sensitiveWordStatus: $('#sensitiveWordStatus').val()
+        };
+    }
+
+    //初始化列表列
+    var columnsData = [
+        {
+            field: 'fid',
+            title: 'fid',
+            align: 'center'
+        }, {
+            field: 'sensitiveWordType',
+            title: '类型',
+            align: 'center',
+            formatter: 'formatType'
+        }, {
+            field: 'content',
+            title: '词文本',
+            align: 'center'
+        }, {
+            field: 'sensitiveWordStatus',
+            title: '状态',
+            align: 'center',
+            formatter: 'formatStatus'
+        }, {
+            field: 'lastModifyDate',
+            title: '更新时间',
+            align: 'center',
+            formatter: 'CommonUtils.formateTimeStr'
+        }, {
+            title: '操作',
+            align: 'center',
+            formatter: 'formateOper'
+        }];
+
+    // 类型列表
+    var typeList = [[${typeList}]];
+    var typeMap = {};
+    for(var i in typeList){
+        typeMap[typeList[i].code] = typeList[i].name;
+    }
+    // 状态列表
+    var statusList = [[${statusList}]];
+    var statusMap = {};
+    for(var i in statusList){
+        statusMap[statusList[i].code] = statusList[i].name;
+    }
+
+
+    function formatType(value, row, index) {
+        var typeName = typeMap[value];
+        return typeName ? typeName : "-";
+    }
+
+    function formatStatus(value, row, index) {
+        var statusName = statusMap[value];
+        return statusName ? statusName : "-";
+    }
+
+    // 操作栏
+    function formateOper(value,row,index) {
+        //待审核
+        if(row.sensitiveWordStatus == 0){
+            return "<button type='button' class='btn btn-primary btn-xs' onclick='auditSensitiveWord(\""+row.fid+"\", 1)'>通过</button>" +
+                "&nbsp;&nbsp;<button type='button' class='btn btn-primary btn-xs' onclick='auditSensitiveWord(\""+row.fid+"\", 2)'>驳回</button>";
+        }else if(row.sensitiveWordStatus == 2){
+            // 驳回转通过
+            return "<button type='button' class='btn btn-primary btn-xs' onclick='auditSensitiveWord(\""+row.fid+"\", 1)'>通过</button>";
+        }else{
+            return "无";
+        }
+    }
+
+    function auditSensitiveWord(fid, sensitiveWordStatus){
+        $.ajax({
+            type: "POST",
+            url: "sensitiveWord/audit",
+            dataType:"json",
+            data: {
+                "fid":fid,
+                "sensitiveWordStatus":sensitiveWordStatus
+            },
+            success: function (data) {
+                if(data){
+                    layer.closeAll("loading");
+                    if (data.status == 0){
+                        layer.alert("操作成功", {icon: 1,time: 2000, title:'提示'});
+                        $('#myModal').modal('hide');
+                        $("#listTable").bootstrapTable('refresh');
+                    }else{
+                        layer.alert(data.message, {icon: 5,time: 2000, title:'提示'});
+                    }
+                }else{
+                    layer.alert("操作失败", {icon: 5,time: 2000, title:'提示'});
+                }
+            },
+            error: function(result) {
+                layer.closeAll("loading");
+                layer.alert("操作失败", {icon: 5,time: 2000, title:'提示'});
+            }
+        });
+    }
+
+</script>
+
+</body>
+
+</html>
